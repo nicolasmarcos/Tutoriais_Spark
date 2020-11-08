@@ -1,0 +1,1 @@
+Este bucket contém arquivos utilizados durante curso de Spark com Scala https://www.udemy.com/course/apache-spark-hands-on-course-big-data-analytics/

@@ -1,0 +1,33 @@
+# Copia para HDFS arquivos que serao utilizados
+
+hdfs dfs -copyFromLocal /home/cloudera/Downloads/vgsales_cleaned.csv /user/cloudera/curso_spark/
+
+val gamesRdd = sc.textFile("/user/cloudera/curso_spark/vgsales_cleaned.csv")
+
+
+# analisa dados importados
+gamesRdd.count
+gamesRdd.take(2)
+gamesRdd.collect
+
+# Gera um mapeamento chave/valor para a plataforma
+
+gamesRdd.map(x=>x.split(",")).map(x=>(x(2),1)).collect
+
+# Fara o reduce em acordo com a chave, somando-os
+gamesRdd.map(x=>x.split(",")).map(x=>(x(2),1)).reduceByKey(_+_).collect
+
+# Plataforma x Valores
+
+val headerLine=gamesRdd.take(1)(0)
+val gamesRddSemHead = gamesRdd.filter(eachLine => eachLine != headerLine).collect
+gamesRdd.filter(eachLine => eachLine != headerLine).map(x=>x.split(",")).map(x=>(x(2),x(10).toDouble)).reduceByKey((x,y)=>x+y).collect
+
+# Lista as maiores vendas por plataforma
+
+gamesRdd.filter(eachLine => eachLine != headerLine).map(x=>x.split(",")).map(x=>(x(2),x(10).toDouble)).groupByKey.map{x=>(x._1,x._2.toList.max)}.collect
+
+
+# Lista as top 10 plataformas com mais venda
+
+gamesRdd.filter(eachLine => eachLine != headerLine).map(x=>x.split(",")).map(x=>(x(2),x(10).toDouble)).reduceByKey(_+_).map(x=>(x._2,x._1)).sortByKey(false).map(x=>(x._2,x._1)).take(10)
